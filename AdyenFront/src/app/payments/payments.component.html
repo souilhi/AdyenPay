@@ -1,0 +1,13 @@
+<div>
+    <h1>List Payment Method s</h1>
+ <div *ngIf = "paiements">
+    <ul >
+       <li *ngFor="let pay of paiements | keyvalue" > <span>{{pay}} </span></li>
+       
+   </ul> 
+</div> 
+
+{{paiements | json }}
+
+</div>
+<div id="dropin-container"></div>
