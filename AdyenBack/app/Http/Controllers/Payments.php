@@ -2,26 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Adyen\{Client, Environment};
+use Adyen\Service\Checkout;
 
-use \Adyen\Client;
 
-
-class Payments extends Controller
+/**
+ * extends Controller
+ * We don't use anything related to controller, no need to extend it
+ * With the request too: use Illuminate\Http\Request;
+ */
+class Payments
 {
+    private $api_key = 'AQEhhmfuXNWTK0Qc+iSDkWU0ovxsjq/wXJ3AnYwwG0/gN95OEMFdWw2+5HzctViMSCJMYAc=-Ro0ccIWu/5DbjcuDJoMxdi9cesFssQEqJptXyDiHdEw=-,f45zTs4yZT>Y83L';
     //
     public function getPayMethodsPage(){
        // return view('payement');
     }
-    function payMethods(){
 
-
+    public function payMethods(){
         // Set your X-API-KEY with the API key from the Customer Area.
         $client = new Client();
-        $client->setXApiKey("AQEhhmfuXNWTK0Qc+iSDkWU0ovxsjq/wXJ3AnYwwG0/gN95OEMFdWw2+5HzctViMSCJMYAc=-Ro0ccIWu/5DbjcuDJoMxdi9cesFssQEqJptXyDiHdEw=-,f45zTs4yZT>Y83L");
-        $client->setEnvironment(\Adyen\Environment::TEST);
-        $service = new \Adyen\Service\Checkout($client);
-        
+        $client->setXApiKey($this->api_key);
+        $client->setEnvironment(Environment::TEST);
+        $service = new Checkout($client);
+
         $params = array(
         "merchantAccount" => "ScalexECOM",
         "countryCode" => "MA",
@@ -31,46 +35,40 @@ class Payments extends Controller
         ),
         "channel" => "Web"
         );
-        
-        $result = $service->paymentMethods($params);
+
+        // $result = $service->paymentMethods($params);
         // Pass the response to your front end
-        $result = json_encode($result) ;
-        return view('payement', ['result' => $result]);
+        // $result = json_encode($result) ;
+        // For laravel views, don't return value as JSON
+        return view('payement', ['result' => $service->paymentMethods($params)]);
     }
 
 
-    ///ffffffffffffff
-
-    function payMeth(){
-
+    public function payMeth(){
 
         // Set your X-API-KEY with the API key from the Customer Area.
-         $client = new Client();
-        $client->setXApiKey("AQEhhmfuXNWTK0Qc+iSDkWU0ovxsjq/wXJ3AnYwwG0/gN95OEMFdWw2+5HzctViMSCJMYAc=-Ro0ccIWu/5DbjcuDJoMxdi9cesFssQEqJptXyDiHdEw=-,f45zTs4yZT>Y83L");
-        $client->setEnvironment(\Adyen\Environment::TEST);
-        $service = new \Adyen\Service\Checkout($client);
-        
-        $params = array(
-        "merchantAccount" => "ScalexECOM",
-        "countryCode" => "MA",
-        "amount" => array(
-            "currency" => "EUR",
-            "value" => 1000
-        ),
-        "channel" => "Web"
-        );
-        
-        $respo = $service->paymentMethods($params); 
+        $client = new Client();
+        $client->setXApiKey($this->api_key);
+        $client->setEnvironment(Environment::TEST);
+        $service = new Checkout($client);
 
-        
-        // Pass the response to your front end
-       $respo = json_encode($respo) ;
-      
-       
-     $result = json_decode($respo, true);
-     //return response()->json($result, );
-     //$result['paymentMethods'][2]['brands'];
-    return $result;
+        $params = [
+            "merchantAccount" => "ScalexECOM",
+            "countryCode" => "MA",
+            "amount" => [
+                "currency" => "EUR",
+                "value" => 1000
+            ],
+            "channel" => "Web"
+        ];
+
+        return response()->json(
+            [
+                'status' => true,
+                'code' => 200,
+                'methods' => $service->paymentMethods($params)
+            ], 200
+        );
     }
 }
 
